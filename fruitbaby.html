@@ -1,20 +1,42 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pregnancy Fruit Journey</title>
     <style>
         :root {
-            color-scheme: light dark;
+            color-scheme: light;
             --bg: linear-gradient(180deg, #f8f4ff 0%, #ffeef2 100%);
-            --card-bg: rgba(255, 255, 255, 0.75);
-            --border: rgba(102, 102, 153, 0.2);
+            --card-bg: rgba(255, 255, 255, 0.78);
+            --border: rgba(102, 102, 153, 0.18);
             --accent: #ff6584;
             --accent-dark: #e24a6d;
             --text-main: #2a2139;
             --text-soft: #5e5871;
             --shadow: 0 20px 40px rgba(42, 33, 57, 0.15);
+            --control-bg: rgba(255, 255, 255, 0.7);
+            --control-border: rgba(102, 102, 153, 0.2);
+            --control-text: #564f67;
+            --track-bg: rgba(255, 255, 255, 0.65);
+            --progress-track: rgba(42, 33, 57, 0.1);
+        }
+
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --bg: linear-gradient(180deg, #140b2a 0%, #1d1024 100%);
+            --card-bg: rgba(23, 19, 38, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #ff7aa2;
+            --accent-dark: #ff9bb9;
+            --text-main: #f5f2ff;
+            --text-soft: #c8c4da;
+            --shadow: 0 24px 48px rgba(6, 4, 11, 0.6);
+            --control-bg: rgba(43, 34, 64, 0.9);
+            --control-border: rgba(255, 255, 255, 0.08);
+            --control-text: #e3def7;
+            --track-bg: rgba(255, 255, 255, 0.22);
+            --progress-track: rgba(255, 255, 255, 0.12);
         }
 
         * {
@@ -27,6 +49,7 @@
             font-family: "Segoe UI", Tahoma, Geneva, sans-serif;
             background: var(--bg);
             color: var(--text-main);
+            transition: background 0.4s ease, color 0.4s ease;
         }
 
         main {
@@ -35,9 +58,79 @@
             padding: 48px 24px 64px;
         }
 
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-soft);
+            font-size: 0.95rem;
+        }
+
+        .pill-group {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: var(--control-bg);
+            border: 1px solid var(--control-border);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.18);
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .pill-group button,
+        .pill-action {
+            border: none;
+            border-radius: 999px;
+            padding: 8px 16px;
+            background: transparent;
+            color: var(--control-text);
+            transition: all 0.2s ease;
+        }
+
+        .pill-group button:hover,
+        .pill-group button:focus,
+        .pill-action:hover,
+        .pill-action:focus {
+            outline: none;
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .pill-group button[data-active="true"] {
+            background: var(--accent);
+            color: #ffffff;
+            box-shadow: 0 10px 20px rgba(255, 101, 132, 0.35);
+        }
+
+        .pill-action {
+            border: 1px solid var(--control-border);
+            background: var(--control-bg);
+            color: var(--text-main);
+        }
+
+        .pill-action[data-active="dark"] {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 10px 24px rgba(255, 101, 132, 0.35);
+        }
+
         h1 {
             font-size: clamp(2.25rem, 5vw, 3rem);
-            margin-bottom: 12px;
+            margin: 0 0 12px;
             letter-spacing: -0.02em;
         }
 
@@ -59,6 +152,7 @@
             padding: 28px;
             backdrop-filter: blur(14px);
             box-shadow: var(--shadow);
+            transition: background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease;
         }
 
         .card h2 {
@@ -70,11 +164,12 @@
             display: flex;
             gap: 12px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .trimester-badges button {
             border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.65);
+            background: var(--control-bg);
             color: var(--text-soft);
             border-radius: 999px;
             padding: 8px 16px;
@@ -93,7 +188,7 @@
         .trimester-badges button[data-active="true"] {
             background: var(--accent);
             border-color: transparent;
-            color: white;
+            color: #ffffff;
             box-shadow: 0 10px 20px rgba(255, 101, 132, 0.3);
         }
 
@@ -105,10 +200,13 @@
 
         .week-range label {
             font-weight: 600;
+            display: flex;
+            gap: 8px;
+            align-items: baseline;
         }
 
-        .week-range label span {
-            color: var(--accent-dark);
+        .week-range label span:first-child {
+            color: var(--text-soft);
         }
 
         input[type="range"] {
@@ -117,9 +215,10 @@
             width: 100%;
             height: 10px;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.7);
+            background: var(--track-bg);
             border: 1px solid var(--border);
             position: relative;
+            transition: background 0.4s ease, border 0.4s ease;
         }
 
         input[type="range"]::-webkit-slider-thumb {
@@ -162,6 +261,10 @@
             margin-bottom: 12px;
         }
 
+        :root[data-theme="dark"] .fruit-highlight .badge {
+            background: rgba(255, 122, 162, 0.18);
+        }
+
         .fruit-info h3 {
             margin: 0 0 6px;
             font-size: 1.3rem;
@@ -188,7 +291,7 @@
             position: relative;
             height: 10px;
             border-radius: 999px;
-            background: rgba(42, 33, 57, 0.08);
+            background: var(--progress-track);
             overflow: hidden;
         }
 
@@ -217,12 +320,13 @@
 
         .week-grid button {
             border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.6);
+            background: var(--control-bg);
             border-radius: 12px;
             padding: 14px 12px;
             text-align: left;
             cursor: pointer;
             transition: all 0.2s ease;
+            color: var(--text-main);
         }
 
         .week-grid button strong {
@@ -247,7 +351,7 @@
 
         .week-grid button[data-active="true"] {
             background: var(--accent);
-            color: white;
+            color: #ffffff;
             border-color: transparent;
         }
 
@@ -268,28 +372,47 @@
             }
 
             .trimester-badges {
-                flex-wrap: wrap;
+                flex-direction: column;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
 </head>
 <body>
 <main>
+    <div class="toolbar">
+        <div class="control">
+            <span id="language-label">Language</span>
+            <div class="pill-group" id="language-toggle">
+                <button type="button" data-lang="en" data-active="true">English</button>
+                <button type="button" data-lang="tr">Turkish</button>
+            </div>
+        </div>
+        <div class="control">
+            <span id="theme-label">Theme</span>
+            <button type="button" id="theme-toggle" class="pill-action" data-active="light">Switch to dark mode</button>
+        </div>
+    </div>
+
     <header>
-        <h1>Pregnancy Fruit Journey</h1>
-        <p class="lead">Explore each week of pregnancy with a fruit-inspired comparison so you can picture how your baby grows from a tiny seed to a nearly full-size watermelon.</p>
+        <h1 id="header-title">Pregnancy Fruit Journey</h1>
+        <p class="lead" id="header-lead">Explore each week of pregnancy with a fruit-inspired comparison so you can picture how your baby grows from a tiny seed to a nearly full-size watermelon.</p>
     </header>
 
     <section class="dashboard">
         <article class="card">
-            <div class="trimester-badges" role="tablist" aria-label="Trimester shortcuts">
+            <div class="trimester-badges" id="trimester-tabs" role="tablist" aria-label="Trimester shortcuts">
                 <button type="button" data-trimester="1">Trimester 1 - Weeks 4-13</button>
                 <button type="button" data-trimester="2">Trimester 2 - Weeks 14-27</button>
                 <button type="button" data-trimester="3">Trimester 3 - Weeks 28-40</button>
             </div>
 
             <div class="week-range">
-                <label for="week-range">Week <span id="week-number">4</span></label>
+                <label for="week-range"><span id="week-label">Week</span> <span id="week-number">4</span></label>
                 <input type="range" id="week-range" min="4" max="40" value="4" step="1">
             </div>
 
@@ -307,151 +430,324 @@
 
             <div class="progress-track">
                 <div class="progress-bar" aria-hidden="true">
-                    <span id="progress-fill" style="width:10%"></span>
+                    <span id="progress-fill" style="width:3%"></span>
                 </div>
                 <div class="progress-labels">
-                    <span>Start</span>
+                    <span id="progress-start">Start</span>
                     <span id="progress-trimester">First trimester</span>
-                    <span>Delivery</span>
+                    <span id="progress-delivery">Delivery</span>
                 </div>
             </div>
         </article>
 
         <article class="card">
-            <h2>Jump to a Week</h2>
+            <h2 id="jump-heading">Jump to a Week</h2>
             <div class="week-grid" id="week-grid" aria-label="Week quick selection"></div>
         </article>
     </section>
 
-    <footer>
+    <footer id="footer-note">
         Fruit sizes use common pregnancy comparisons and are approximate. Every pregnancy is unique-use this tool for fun visualization rather than medical guidance.
     </footer>
 </main>
 
 <script>
+    const translations = {
+        en: {
+            pageTitle: "Pregnancy Fruit Journey",
+            headerTitle: "Pregnancy Fruit Journey",
+            headerLead: "Explore each week of pregnancy with a fruit-inspired comparison so you can picture how your baby grows from a tiny seed to a nearly full-size watermelon.",
+            languageLabel: "Language",
+            themeLabel: "Theme",
+            languages: { en: "English", tr: "Turkish" },
+            themeToggleDark: "Switch to dark mode",
+            themeToggleLight: "Switch to light mode",
+            weekLabel: "Week",
+            weekPrefix: "Week",
+            trimesterNames: { 1: "First trimester", 2: "Second trimester", 3: "Third trimester" },
+            trimesterButtons: {
+                1: "Trimester 1 - Weeks 4-13",
+                2: "Trimester 2 - Weeks 14-27",
+                3: "Trimester 3 - Weeks 28-40"
+            },
+            jumpHeading: "Jump to a Week",
+            progressStart: "Start",
+            progressDelivery: "Delivery",
+            footerNote: "Fruit sizes use common pregnancy comparisons and are approximate. Every pregnancy is unique-use this tool for fun visualization rather than medical guidance.",
+            trimesterAria: "Trimester shortcuts",
+            weekGridLabel: "Week quick selection"
+        },
+        tr: {
+            pageTitle: "Gebelik Meyve Yolculugu",
+            headerTitle: "Gebelik Meyve Yolculugu",
+            headerLead: "Her haftayi bir meyve benzetmesiyle kesfedin ve bebeginizin bir cekirdekten neredeyse tam boy bir karpuza nasil buyudugunu gozunuzde canlandirin.",
+            languageLabel: "Dil",
+            themeLabel: "Tema",
+            languages: { en: "Ingilizce", tr: "Turkce" },
+            themeToggleDark: "Koyu moda gec",
+            themeToggleLight: "Acik moda gec",
+            weekLabel: "Hafta",
+            weekPrefix: "Hafta",
+            trimesterNames: { 1: "Birinci trimester", 2: "Ikinci trimester", 3: "Ucuncu trimester" },
+            trimesterButtons: {
+                1: "Trimester 1 - Haftalar 4-13",
+                2: "Trimester 2 - Haftalar 14-27",
+                3: "Trimester 3 - Haftalar 28-40"
+            },
+            jumpHeading: "Bir Haftaya Atla",
+            progressStart: "Baslangic",
+            progressDelivery: "Dogum",
+            footerNote: "Meyve boyutlari yaygin gebelik karsilastirmalarina dayanan yaklasik degerlerdir. Her gebelik benzersizdir-bu araci tibbi tavsiye yerine eglenceli bir canlandirma icin kullanin.",
+            trimesterAria: "Trimester kisayollari",
+            weekGridLabel: "Hafta hizli secimi"
+        }
+    };
+
     const weekData = [
-        { week: 4, fruit: "Poppy Seed", size: "Approx. 0.04 in / 0.1 cm", summary: "Right after implantation, your embryo is smaller than a poppy seed while layers of cells begin forming the placenta and baby." },
-        { week: 5, fruit: "Sesame Seed", size: "Approx. 0.08 in / 0.2 cm", summary: "The neural tube is developing quickly and the heart is beginning to beat." },
-        { week: 6, fruit: "Apple Seed", size: "Approx. 0.13 in / 0.33 cm", summary: "Tiny buds that will become arms and legs are sprouting, and facial features are starting to take shape." },
-        { week: 7, fruit: "Blueberry", size: "Approx. 0.5 in / 1.3 cm", summary: "Hands and feet are forming webbed paddles while the brain grows at a rapid pace." },
-        { week: 8, fruit: "Raspberry", size: "Approx. 0.63 in / 1.6 cm", summary: "Eyelids, lips, and a little nose are developing; your baby can now make spontaneous movements." },
-        { week: 9, fruit: "Cherry", size: "Approx. 0.9 in / 2.3 cm", summary: "The tail is disappearing and the head is more rounded as vital organs continue maturing." },
-        { week: 10, fruit: "Kumquat", size: "Approx. 1.2 in / 3.1 cm", summary: "Organs are in place and fingernails start forming - your baby graduates from embryo to fetus." },
-        { week: 11, fruit: "Fig", size: "Approx. 1.6 in / 4.1 cm", summary: "Bones are hardening, and your baby can now stretch, somersault, and hiccup." },
-        { week: 12, fruit: "Lime", size: "Approx. 2.1 in / 5.4 cm", summary: "The digestive system is practicing contractions while reflexes sharpen." },
-        { week: 13, fruit: "Peach", size: "Approx. 2.9 in / 7.4 cm", summary: "Fingerprints deepen, vocal cords form, and the second trimester is just around the corner." },
-        { week: 14, fruit: "Lemon", size: "Approx. 3.4 in / 8.7 cm", summary: "Downy lanugo hair begins covering the body to help regulate temperature." },
-        { week: 15, fruit: "Orange", size: "Approx. 4.0 in / 10.1 cm", summary: "Taste buds are forming and your baby can sense light through closed eyelids." },
-        { week: 16, fruit: "Avocado", size: "Approx. 4.6 in / 11.6 cm", summary: "The skeletal system is strengthening and facial muscles allow for first expressions." },
-        { week: 17, fruit: "Pear", size: "Approx. 5.1 in / 13 cm", summary: "Fat is starting to build under the skin while the heart pumps about 100 pints of blood a day." },
-        { week: 18, fruit: "Bell Pepper", size: "Approx. 5.6 in / 14.2 cm", summary: "Ears are now in place and connected, so your baby can hear the outside world." },
-        { week: 19, fruit: "Mango", size: "Approx. 6.0 in / 15.3 cm", summary: "A waxy protective coating called vernix appears over the skin." },
-        { week: 20, fruit: "Banana", size: "Approx. 6.5 in / 16.5 cm", summary: "Halfway there - the brain is designating areas for each sense." },
-        { week: 21, fruit: "Pomegranate", size: "Approx. 10.5 in / 26.7 cm", summary: "Your baby now measures head to toe, practicing swallowing and breathing motions." },
-        { week: 22, fruit: "Papaya", size: "Approx. 11.0 in / 28 cm", summary: "Lips and eyelids are more distinct, and sleep cycles are emerging." },
-        { week: 23, fruit: "Grapefruit", size: "Approx. 11.5 in / 29.2 cm", summary: "You may feel karate kicks as muscles strengthen and lungs develop air sacs." },
-        { week: 24, fruit: "Cantaloupe", size: "Approx. 12.0 in / 30.5 cm", summary: "Taste buds are ready for flavor and the inner ear helps with balance." },
-        { week: 25, fruit: "Honeydew Melon", size: "Approx. 13.0 in / 33 cm", summary: "Baby can respond to your voice and may startle at loud sounds." },
-        { week: 26, fruit: "Canary Melon", size: "Approx. 13.6 in / 34.5 cm", summary: "The lungs are making surfactant, a key ingredient for breathing after birth." },
-        { week: 27, fruit: "Galia Melon", size: "Approx. 14.2 in / 36 cm", summary: "The brain's tissue and neurons keep expanding, boosting activity." },
-        { week: 28, fruit: "Jackfruit", size: "Approx. 14.8 in / 37.6 cm", summary: "Welcome to the third trimester - eyes can open and close, reacting to light." },
-        { week: 29, fruit: "Durian", size: "Approx. 15.2 in / 38.6 cm", summary: "Tiny lungs continue to mature while your baby stores calcium for strong bones." },
-        { week: 30, fruit: "Breadfruit", size: "Approx. 15.7 in / 39.9 cm", summary: "The brain develops grooves and folds, increasing surface area for learning." },
-        { week: 31, fruit: "Pineapple", size: "Approx. 16.2 in / 41.1 cm", summary: "Five senses are fully in place, and the body is plumping up quickly now." },
-        { week: 32, fruit: "Casaba Melon", size: "Approx. 16.7 in / 42.4 cm", summary: "Finger and toenails are complete, and skin is transitioning from translucent to opaque." },
-        { week: 33, fruit: "Santa Claus Melon", size: "Approx. 17.2 in / 43.7 cm", summary: "Immune system prep begins as antibodies pass from you to baby." },
-        { week: 34, fruit: "Crenshaw Melon", size: "Approx. 17.7 in / 45.0 cm", summary: "The nervous system keeps fine-tuning, supporting breathing and temperature control." },
-        { week: 35, fruit: "Canary Watermelon", size: "Approx. 18.2 in / 46.2 cm", summary: "Space is limited, so rolls and wiggles may feel more like gentle stretches." },
-        { week: 36, fruit: "Sugar Baby Watermelon", size: "Approx. 18.7 in / 47.5 cm", summary: "Baby is practicing sucking and gripping while packing on ounces each day." },
-        { week: 37, fruit: "Golden Watermelon", size: "Approx. 19.1 in / 48.5 cm", summary: "Considered early term-babies at this stage keep building brain and lung power." },
-        { week: 38, fruit: "Pumpkin", size: "Approx. 19.4 in / 49.3 cm", summary: "Most lanugo is gone and a firm grasp reflex has developed." },
-        { week: 39, fruit: "Large Watermelon", size: "Approx. 19.8 in / 50.3 cm", summary: "The digestive system is ready for milk, and skin is smoothing out with extra fat." },
-        { week: 40, fruit: "Small Watermelon", size: "Approx. 20.2 in / 51.2 cm", summary: "Right on time - your baby is full term and ready to meet the world." }
+        { week: 4, fruit: { en: "Poppy Seed", tr: "Hashas Tohumu" }, size: { en: "Approx. 0.04 in / 0.1 cm", tr: "Yaklasik 0.04 in / 0.1 cm" }, summary: { en: "Right after implantation, your embryo is smaller than a poppy seed while layers of cells begin forming the placenta and baby.", tr: "Implantasyondan hemen sonra embriyo hashas tohumundan daha kucuk ve hucre tabakalari plasenta ile bebegi olusturmaya basliyor." } },
+        { week: 5, fruit: { en: "Sesame Seed", tr: "Susam Tohumu" }, size: { en: "Approx. 0.08 in / 0.2 cm", tr: "Yaklasik 0.08 in / 0.2 cm" }, summary: { en: "The neural tube is developing quickly and the heart is beginning to beat.", tr: "Sinir tuphu hizla gelisirken kalp atmaya basliyor." } },
+        { week: 6, fruit: { en: "Apple Seed", tr: "Elma Cekirdegi" }, size: { en: "Approx. 0.13 in / 0.33 cm", tr: "Yaklasik 0.13 in / 0.33 cm" }, summary: { en: "Tiny buds that will become arms and legs are sprouting, and facial features are starting to take shape.", tr: "Kollar ve bacaklara donusecek minicik tomurcuklar beliriyor ve yuz hatlari sekillenmeye basliyor." } },
+        { week: 7, fruit: { en: "Blueberry", tr: "Yaban Mersini" }, size: { en: "Approx. 0.5 in / 1.3 cm", tr: "Yaklasik 0.5 in / 1.3 cm" }, summary: { en: "Hands and feet are forming webbed paddles while the brain grows at a rapid pace.", tr: "Beyin hizla buyurken eller ve ayaklar zarli yuzgeclere benzer yapilar halinde sekilleniyor." } },
+        { week: 8, fruit: { en: "Raspberry", tr: "Ahududu" }, size: { en: "Approx. 0.63 in / 1.6 cm", tr: "Yaklasik 0.63 in / 1.6 cm" }, summary: { en: "Eyelids, lips, and a little nose are developing; your baby can now make spontaneous movements.", tr: "Gozkapaklari, dudaklar ve minik bir burun gelisirken bebeginiz artik kendiliginden hareketler yapabiliyor." } },
+        { week: 9, fruit: { en: "Cherry", tr: "Visne" }, size: { en: "Approx. 0.9 in / 2.3 cm", tr: "Yaklasik 0.9 in / 2.3 cm" }, summary: { en: "The tail is disappearing and the head is more rounded as vital organs continue maturing.", tr: "Kuyruk kaybolurken bas daha yuvarlak hale geliyor ve hayati organlar olgunlasmaya devam ediyor." } },
+        { week: 10, fruit: { en: "Kumquat", tr: "Kamkat" }, size: { en: "Approx. 1.2 in / 3.1 cm", tr: "Yaklasik 1.2 in / 3.1 cm" }, summary: { en: "Organs are in place and fingernails start forming-your baby graduates from embryo to fetus.", tr: "Organlar yerlerini alirken tirnaklar olusmaya basliyor ve bebeginiz embriyodan fetuse geciyor." } },
+        { week: 11, fruit: { en: "Fig", tr: "Incir" }, size: { en: "Approx. 1.6 in / 4.1 cm", tr: "Yaklasik 1.6 in / 4.1 cm" }, summary: { en: "Bones are hardening, and your baby can now stretch, somersault, and hiccup.", tr: "Kemikler sertlesiyor ve bebeginiz gerinebiliyor, taklalar atabiliyor ve hickirebiliyor." } },
+        { week: 12, fruit: { en: "Lime", tr: "Yesil Limon" }, size: { en: "Approx. 2.1 in / 5.4 cm", tr: "Yaklasik 2.1 in / 5.4 cm" }, summary: { en: "The digestive system is practicing contractions while reflexes sharpen.", tr: "Sindirim sistemi kasilmalari pratik ederken refleksler keskinlesiyor." } },
+        { week: 13, fruit: { en: "Peach", tr: "Seftali" }, size: { en: "Approx. 2.9 in / 7.4 cm", tr: "Yaklasik 2.9 in / 7.4 cm" }, summary: { en: "Fingerprints deepen, vocal cords form, and the second trimester is just around the corner.", tr: "Parmak izleri belirginlesiyor, ses telleri olusuyor ve ikinci trimester yaklasiyor." } },
+        { week: 14, fruit: { en: "Lemon", tr: "Limon" }, size: { en: "Approx. 3.4 in / 8.7 cm", tr: "Yaklasik 3.4 in / 8.7 cm" }, summary: { en: "Downy lanugo hair begins covering the body to help regulate temperature.", tr: "Vucudu sicakligi dengelemeye yardimci olan ince lanugo killari kaplamaya basliyor." } },
+        { week: 15, fruit: { en: "Orange", tr: "Portakal" }, size: { en: "Approx. 4.0 in / 10.1 cm", tr: "Yaklasik 4.0 in / 10.1 cm" }, summary: { en: "Taste buds are forming and your baby can sense light through closed eyelids.", tr: "Tat tomurcuklari olusuyor ve bebeginiz kapali gozkapaqlarindan gelen isigi hissedebiliyor." } },
+        { week: 16, fruit: { en: "Avocado", tr: "Avokado" }, size: { en: "Approx. 4.6 in / 11.6 cm", tr: "Yaklasik 4.6 in / 11.6 cm" }, summary: { en: "The skeletal system is strengthening and facial muscles allow for first expressions.", tr: "Iskelet sistemi guclenirken yuz kaslari ilk ifadelerin ortaya cikmasina izin veriyor." } },
+        { week: 17, fruit: { en: "Pear", tr: "Armut" }, size: { en: "Approx. 5.1 in / 13 cm", tr: "Yaklasik 5.1 in / 13 cm" }, summary: { en: "Fat is starting to build under the skin while the heart pumps about 100 pints of blood a day.", tr: "Kalp gunde yaklasik 100 pint kan pompalar ve derinin altinda yag birikmeye baslar." } },
+        { week: 18, fruit: { en: "Bell Pepper", tr: "Dolmalik Biber" }, size: { en: "Approx. 5.6 in / 14.2 cm", tr: "Yaklasik 5.6 in / 14.2 cm" }, summary: { en: "Ears are now in place and connected, so your baby can hear the outside world.", tr: "Kulaklar yerini aldi ve baglandi, bu sayede bebeginiz dis dunyayi duyabiliyor." } },
+        { week: 19, fruit: { en: "Mango", tr: "Mango" }, size: { en: "Approx. 6.0 in / 15.3 cm", tr: "Yaklasik 6.0 in / 15.3 cm" }, summary: { en: "A waxy protective coating called vernix appears over the skin.", tr: "Verniks adi verilen mumlu koruyucu tabaka ciltte belirmeye basliyor." } },
+        { week: 20, fruit: { en: "Banana", tr: "Muz" }, size: { en: "Approx. 6.5 in / 16.5 cm", tr: "Yaklasik 6.5 in / 16.5 cm" }, summary: { en: "Halfway there-the brain is designating areas for each sense.", tr: "Yolun yarisindasiniz; beyin her duyu icin bolgeleri ayirmaya basliyor." } },
+        { week: 21, fruit: { en: "Pomegranate", tr: "Nar" }, size: { en: "Approx. 10.5 in / 26.7 cm", tr: "Yaklasik 10.5 in / 26.7 cm" }, summary: { en: "Your baby now measures head to toe, practicing swallowing and breathing motions.", tr: "Bebeginiz artik basindan ayagina olculuyor ve yutma ile nefes alma hareketlerini pratik ediyor." } },
+        { week: 22, fruit: { en: "Papaya", tr: "Papaya" }, size: { en: "Approx. 11.0 in / 28 cm", tr: "Yaklasik 11.0 in / 28 cm" }, summary: { en: "Lips and eyelids are more distinct, and sleep cycles are emerging.", tr: "Dudaklar ve gozkapaqlari daha belirgin, uyku donguleri ortaya cikiyor." } },
+        { week: 23, fruit: { en: "Grapefruit", tr: "Greyfurt" }, size: { en: "Approx. 11.5 in / 29.2 cm", tr: "Yaklasik 11.5 in / 29.2 cm" }, summary: { en: "You may feel karate kicks as muscles strengthen and lungs develop air sacs.", tr: "Kaslar guclenirken ve akcigerler hava kesecikleri gelistirirken karate tekmeleri hissedebilirsiniz." } },
+        { week: 24, fruit: { en: "Cantaloupe", tr: "Kavun" }, size: { en: "Approx. 12.0 in / 30.5 cm", tr: "Yaklasik 12.0 in / 30.5 cm" }, summary: { en: "Taste buds are ready for flavor and the inner ear helps with balance.", tr: "Tat tomurcuklari lezzete hazir ve ic kulak dengeye yardim ediyor." } },
+        { week: 25, fruit: { en: "Honeydew Melon", tr: "Bal Kavunu" }, size: { en: "Approx. 13.0 in / 33 cm", tr: "Yaklasik 13.0 in / 33 cm" }, summary: { en: "Baby can respond to your voice and may startle at loud sounds.", tr: "Bebek sesinize yanit verebilir ve yuksek seslerden irkilebilir." } },
+        { week: 26, fruit: { en: "Canary Melon", tr: "Kanarya Kavunu" }, size: { en: "Approx. 13.6 in / 34.5 cm", tr: "Yaklasik 13.6 in / 34.5 cm" }, summary: { en: "The lungs are making surfactant, a key ingredient for breathing after birth.", tr: "Dogum sonrasi nefes icin onemli olan surfaktan akcigerlerde uretilemeye basliyor." } },
+        { week: 27, fruit: { en: "Galia Melon", tr: "Galia Kavunu" }, size: { en: "Approx. 14.2 in / 36 cm", tr: "Yaklasik 14.2 in / 36 cm" }, summary: { en: "The brain's tissue and neurons keep expanding, boosting activity.", tr: "Beyin dokusu ve noronlar genislemeye devam ederek faaliyeti artiriyor." } },
+        { week: 28, fruit: { en: "Jackfruit", tr: "Jackfruit" }, size: { en: "Approx. 14.8 in / 37.6 cm", tr: "Yaklasik 14.8 in / 37.6 cm" }, summary: { en: "Welcome to the third trimester-eyes can open and close, reacting to light.", tr: "Ucuncu trimestere hos geldiniz; gozler isiga tepki vererek acilip kapanabiliyor." } },
+        { week: 29, fruit: { en: "Durian", tr: "Durian" }, size: { en: "Approx. 15.2 in / 38.6 cm", tr: "Yaklasik 15.2 in / 38.6 cm" }, summary: { en: "Tiny lungs continue to mature while your baby stores calcium for strong bones.", tr: "Minik akcigerler olgunlasmayi surdurur ve bebeginiz guclu kemikler icin kalsiyum depolar." } },
+        { week: 30, fruit: { en: "Breadfruit", tr: "Ekmek Agaci Meyvesi" }, size: { en: "Approx. 15.7 in / 39.9 cm", tr: "Yaklasik 15.7 in / 39.9 cm" }, summary: { en: "The brain develops grooves and folds, increasing surface area for learning.", tr: "Beyin kivrimlar ve girintiler gelistirerek ogrenme icin yuzeyi artiriyor." } },
+        { week: 31, fruit: { en: "Pineapple", tr: "Ananas" }, size: { en: "Approx. 16.2 in / 41.1 cm", tr: "Yaklasik 16.2 in / 41.1 cm" }, summary: { en: "Five senses are fully in place, and the body is plumping up quickly now.", tr: "Bes duyu tamamen devrede ve beden hizla kilo aliyor." } },
+        { week: 32, fruit: { en: "Casaba Melon", tr: "Casaba Kavunu" }, size: { en: "Approx. 16.7 in / 42.4 cm", tr: "Yaklasik 16.7 in / 42.4 cm" }, summary: { en: "Finger and toenails are complete, and skin is transitioning from translucent to opaque.", tr: "El ve ayak tirnaklari tamamlandi ve deri saydamdan mat hale geciyor." } },
+        { week: 33, fruit: { en: "Santa Claus Melon", tr: "Santa Claus Kavunu" }, size: { en: "Approx. 17.2 in / 43.7 cm", tr: "Yaklasik 17.2 in / 43.7 cm" }, summary: { en: "Immune system prep begins as antibodies pass from you to baby.", tr: "Sizden bebege antikorlar gecerken bagisiklik sistemi hazirlanmaya basliyor." } },
+        { week: 34, fruit: { en: "Crenshaw Melon", tr: "Crenshaw Kavunu" }, size: { en: "Approx. 17.7 in / 45.0 cm", tr: "Yaklasik 17.7 in / 45.0 cm" }, summary: { en: "The nervous system keeps fine-tuning, supporting breathing and temperature control.", tr: "Sinir sistemi nefes alma ve sicaklik kontrolunu destekleyecek sekilde ince ayar yapiyor." } },
+        { week: 35, fruit: { en: "Canary Watermelon", tr: "Kanarya Karpuzu" }, size: { en: "Approx. 18.2 in / 46.2 cm", tr: "Yaklasik 18.2 in / 46.2 cm" }, summary: { en: "Space is limited, so rolls and wiggles may feel more like gentle stretches.", tr: "Alan azaldigi icin tekme ve kivranmalar daha cok yumusak gerinmeler gibi hissedilebilir." } },
+        { week: 36, fruit: { en: "Sugar Baby Watermelon", tr: "Sugar Baby Karpuzu" }, size: { en: "Approx. 18.7 in / 47.5 cm", tr: "Yaklasik 18.7 in / 47.5 cm" }, summary: { en: "Baby is practicing sucking and gripping while packing on ounces each day.", tr: "Bebek her gun gramlar eklerken emme ve kavrama hareketlerini pratik ediyor." } },
+        { week: 37, fruit: { en: "Golden Watermelon", tr: "Altin Karpuz" }, size: { en: "Approx. 19.1 in / 48.5 cm", tr: "Yaklasik 19.1 in / 48.5 cm" }, summary: { en: "Considered early term-babies at this stage keep building brain and lung power.", tr: "Bu donem erken donem olarak kabul edilir; bebekler beyin ve akciger gucunu artirmaya devam eder." } },
+        { week: 38, fruit: { en: "Pumpkin", tr: "Bal Kabagi" }, size: { en: "Approx. 19.4 in / 49.3 cm", tr: "Yaklasik 19.4 in / 49.3 cm" }, summary: { en: "Most lanugo is gone and a firm grasp reflex has developed.", tr: "Lanugonun cogu kaybolur ve guclu bir kavrama refleksi gelisir." } },
+        { week: 39, fruit: { en: "Large Watermelon", tr: "Buyuk Karpuz" }, size: { en: "Approx. 19.8 in / 50.3 cm", tr: "Yaklasik 19.8 in / 50.3 cm" }, summary: { en: "The digestive system is ready for milk, and skin is smoothing out with extra fat.", tr: "Sindirim sistemi sut icin hazirlanir ve yag tabakasi ile deri duzlesir." } },
+        { week: 40, fruit: { en: "Small Watermelon", tr: "Kucuk Karpuz" }, size: { en: "Approx. 20.2 in / 51.2 cm", tr: "Yaklasik 20.2 in / 51.2 cm" }, summary: { en: "Right on time-your baby is full term and ready to meet the world.", tr: "Tam zamaninda; bebeginiz tum donemini tamamladi ve dunyayi karsilamaya hazir." } }
     ];
 
     const trimesterRanges = {
-        1: { start: 4, end: 13, label: "First trimester" },
-        2: { start: 14, end: 27, label: "Second trimester" },
-        3: { start: 28, end: 40, label: "Third trimester" }
+        1: { start: 4, end: 13 },
+        2: { start: 14, end: 27 },
+        3: { start: 28, end: 40 }
     };
 
-    const weekRange = document.querySelector("#week-range");
-    const weekNumber = document.querySelector("#week-number");
-    const fruitTitle = document.querySelector("#fruit-title");
-    const fruitName = document.querySelector("#fruit-name");
-    const fruitSummary = document.querySelector("#fruit-summary");
-    const fruitSize = document.querySelector("#fruit-size");
-    const trimesterLabel = document.querySelector("#trimester-label");
-    const progressFill = document.querySelector("#progress-fill");
-    const progressTrimester = document.querySelector("#progress-trimester");
-    const trimesterButtons = document.querySelectorAll("[data-trimester]");
-    const weekGrid = document.querySelector("#week-grid");
+    const weekRange = document.querySelector('#week-range');
+    const weekLabelText = document.querySelector('#week-label');
+    const weekNumber = document.querySelector('#week-number');
+    const fruitTitle = document.querySelector('#fruit-title');
+    const fruitName = document.querySelector('#fruit-name');
+    const fruitSummary = document.querySelector('#fruit-summary');
+    const fruitSize = document.querySelector('#fruit-size');
+    const trimesterLabel = document.querySelector('#trimester-label');
+    const progressFill = document.querySelector('#progress-fill');
+    const progressTrimester = document.querySelector('#progress-trimester');
+    const progressStart = document.querySelector('#progress-start');
+    const progressDelivery = document.querySelector('#progress-delivery');
+    const headerTitle = document.querySelector('#header-title');
+    const headerLead = document.querySelector('#header-lead');
+    const footerNote = document.querySelector('#footer-note');
+    const jumpHeading = document.querySelector('#jump-heading');
+    const trimesterButtons = document.querySelectorAll('[data-trimester]');
+    const trimesterTabs = document.querySelector('#trimester-tabs');
+    const weekGrid = document.querySelector('#week-grid');
+    const languageLabel = document.querySelector('#language-label');
+    const themeLabel = document.querySelector('#theme-label');
+    const languageButtons = document.querySelectorAll('[data-lang]');
+    const themeToggle = document.querySelector('#theme-toggle');
 
-    function getTrimester(week) {
-        if (week >= trimesterRanges[3].start) return trimesterRanges[3];
-        if (week >= trimesterRanges[2].start) return trimesterRanges[2];
-        return trimesterRanges[1];
+    let currentLang = 'en';
+    let currentTheme = 'light';
+    let currentWeek = Number(weekRange.value);
+
+    function getTrimesterKey(week) {
+        if (week >= trimesterRanges[3].start) return '3';
+        if (week >= trimesterRanges[2].start) return '2';
+        return '1';
     }
 
     function renderWeekGrid() {
-        weekGrid.innerHTML = "";
+        weekGrid.innerHTML = '';
+        const strings = translations[currentLang];
         weekData.forEach((item) => {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.dataset.week = item.week;
-            button.innerHTML = `<strong>Week ${item.week}</strong><span>${item.fruit}</span>`;
-            button.addEventListener("click", () => setWeek(item.week));
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.week = String(item.week);
+            button.innerHTML = '<strong>' + strings.weekPrefix + ' ' + item.week + '</strong><span>' + item.fruit[currentLang] + '</span>';
+            button.addEventListener('click', () => setWeek(item.week));
             weekGrid.appendChild(button);
         });
     }
 
     function highlightActiveWeek(week) {
-        weekGrid.querySelectorAll("button").forEach((btn) => {
+        weekGrid.querySelectorAll('button').forEach((btn) => {
             btn.dataset.active = String(Number(btn.dataset.week) === week);
         });
     }
 
-    function highlightActiveTrimester(trimester) {
+    function highlightActiveTrimester(trimesterKey) {
         trimesterButtons.forEach((btn) => {
-            btn.dataset.active = String(btn.dataset.trimester === String(trimester));
+            btn.dataset.active = String(btn.dataset.trimester === String(trimesterKey));
         });
+    }
+
+    function highlightActiveLanguage() {
+        languageButtons.forEach((btn) => {
+            btn.dataset.active = String(btn.dataset.lang === currentLang);
+        });
+    }
+
+    function updateThemeToggleText() {
+        const strings = translations[currentLang];
+        if (currentTheme === 'light') {
+            themeToggle.textContent = strings.themeToggleDark;
+            themeToggle.dataset.active = 'light';
+        } else {
+            themeToggle.textContent = strings.themeToggleLight;
+            themeToggle.dataset.active = 'dark';
+        }
+        themeToggle.setAttribute('aria-pressed', currentTheme === 'dark');
     }
 
     function setWeek(week) {
         const data = weekData.find((item) => item.week === week);
         if (!data) return;
+        const strings = translations[currentLang];
 
-        weekRange.value = week;
-        weekNumber.textContent = week;
-        fruitTitle.textContent = `Week ${week} - ${data.fruit}`;
-        fruitName.textContent = data.fruit;
-        fruitSummary.textContent = data.summary;
-        fruitSize.textContent = data.size;
+        currentWeek = week;
+        weekRange.value = String(week);
+        weekNumber.textContent = String(week);
+        fruitTitle.textContent = strings.weekPrefix + ' ' + week + ' - ' + data.fruit[currentLang];
+        fruitName.textContent = data.fruit[currentLang];
+        fruitSummary.textContent = data.summary[currentLang];
+        fruitSize.textContent = data.size[currentLang];
 
-        const trimester = getTrimester(week);
-        trimesterLabel.textContent = trimester.label;
-        progressTrimester.textContent = trimester.label;
-        highlightActiveTrimester(Object.keys(trimesterRanges).find((key) => trimesterRanges[key] === trimester));
+        const trimesterKey = getTrimesterKey(week);
+        const trimesterName = strings.trimesterNames[trimesterKey];
+        trimesterLabel.textContent = trimesterName;
+        progressTrimester.textContent = trimesterName;
+        highlightActiveTrimester(trimesterKey);
 
         const completion = ((week - 4) / (40 - 4)) * 100;
-        progressFill.style.width = `${Math.max(4, completion)}%`;
+        progressFill.style.width = Math.max(3, completion) + '%';
 
         highlightActiveWeek(week);
     }
 
-    weekRange.addEventListener("input", (event) => {
+    function setLanguage(lang) {
+        if (!translations[lang]) return;
+        currentLang = lang;
+        const strings = translations[lang];
+
+        document.documentElement.lang = lang;
+        document.title = strings.pageTitle;
+        headerTitle.textContent = strings.headerTitle;
+        headerLead.textContent = strings.headerLead;
+        languageLabel.textContent = strings.languageLabel;
+        themeLabel.textContent = strings.themeLabel;
+        weekLabelText.textContent = strings.weekLabel;
+        progressStart.textContent = strings.progressStart;
+        progressDelivery.textContent = strings.progressDelivery;
+        footerNote.textContent = strings.footerNote;
+        jumpHeading.textContent = strings.jumpHeading;
+        trimesterTabs.setAttribute('aria-label', strings.trimesterAria);
+        weekGrid.setAttribute('aria-label', strings.weekGridLabel);
+
+        languageButtons.forEach((btn) => {
+            const langKey = btn.dataset.lang;
+            btn.textContent = strings.languages[langKey];
+        });
+
+        Object.keys(trimesterRanges).forEach((key) => {
+            const button = document.querySelector('[data-trimester="' + key + '"]');
+            if (button) {
+                button.textContent = strings.trimesterButtons[key];
+            }
+        });
+
+        renderWeekGrid();
+        setWeek(currentWeek);
+        highlightActiveLanguage();
+        updateThemeToggleText();
+        try {
+            localStorage.setItem('fbLang', lang);
+        } catch (error) {
+        }
+    }
+
+    function setTheme(theme) {
+        if (theme !== 'light' && theme !== 'dark') return;
+        currentTheme = theme;
+        document.documentElement.dataset.theme = theme;
+        updateThemeToggleText();
+        try {
+            localStorage.setItem('fbTheme', theme);
+        } catch (error) {
+        }
+    }
+
+    weekRange.addEventListener('input', (event) => {
         setWeek(Number(event.target.value));
     });
 
     trimesterButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            const { start } = trimesterRanges[Number(button.dataset.trimester)];
-            setWeek(start);
+        button.addEventListener('click', () => {
+            const range = trimesterRanges[Number(button.dataset.trimester)];
+            if (range) {
+                setWeek(range.start);
+            }
         });
     });
 
-    renderWeekGrid();
-    setWeek(4);
+    languageButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            setLanguage(button.dataset.lang);
+        });
+    });
+
+    themeToggle.addEventListener('click', () => {
+        setTheme(currentTheme === 'light' ? 'dark' : 'light');
+    });
+
+    const preferredLang = (() => {
+        try {
+            const stored = localStorage.getItem('fbLang');
+            if (stored && translations[stored]) return stored;
+        } catch (error) {
+        }
+        const browser = (navigator.language || '').slice(0, 2).toLowerCase();
+        return translations[browser] ? browser : 'en';
+    })();
+
+    const preferredTheme = (() => {
+        try {
+            const stored = localStorage.getItem('fbTheme');
+            if (stored === 'light' || stored === 'dark') return stored;
+        } catch (error) {
+        }
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })();
+
+    setTheme(preferredTheme);
+    setLanguage(preferredLang);
+    setWeek(currentWeek);
 </script>
 </body>
 </html>
