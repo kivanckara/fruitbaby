@@ -1,0 +1,457 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pregnancy Fruit Journey</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg: linear-gradient(180deg, #f8f4ff 0%, #ffeef2 100%);
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --border: rgba(102, 102, 153, 0.2);
+            --accent: #ff6584;
+            --accent-dark: #e24a6d;
+            --text-main: #2a2139;
+            --text-soft: #5e5871;
+            --shadow: 0 20px 40px rgba(42, 33, 57, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, Geneva, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+
+        main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 48px 24px 64px;
+        }
+
+        h1 {
+            font-size: clamp(2.25rem, 5vw, 3rem);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        p.lead {
+            margin: 0 0 32px;
+            font-size: 1.05rem;
+            color: var(--text-soft);
+        }
+
+        .dashboard {
+            display: grid;
+            gap: 32px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            backdrop-filter: blur(14px);
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            margin: 0 0 18px;
+            font-size: 1.6rem;
+        }
+
+        .trimester-badges {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .trimester-badges button {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.65);
+            color: var(--text-soft);
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .trimester-badges button:hover,
+        .trimester-badges button:focus {
+            outline: none;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .trimester-badges button[data-active="true"] {
+            background: var(--accent);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 10px 20px rgba(255, 101, 132, 0.3);
+        }
+
+        .week-range {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .week-range label {
+            font-weight: 600;
+        }
+
+        .week-range label span {
+            color: var(--accent-dark);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 8px 16px rgba(255, 101, 132, 0.35);
+            cursor: pointer;
+            border: none;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            box-shadow: 0 8px 16px rgba(255, 101, 132, 0.35);
+            cursor: pointer;
+        }
+
+        .fruit-highlight {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            align-items: center;
+        }
+
+        .fruit-highlight .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(255, 101, 132, 0.12);
+            color: var(--accent-dark);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .fruit-info h3 {
+            margin: 0 0 6px;
+            font-size: 1.3rem;
+        }
+
+        .fruit-info p {
+            margin: 0;
+            color: var(--text-soft);
+            line-height: 1.5;
+        }
+
+        .size-callout {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-dark);
+            margin-top: 10px;
+        }
+
+        .progress-track {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            position: relative;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(42, 33, 57, 0.08);
+            overflow: hidden;
+        }
+
+        .progress-bar span {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.25s ease;
+        }
+
+        .progress-labels {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-soft);
+        }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+        }
+
+        .week-grid button {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .week-grid button strong {
+            display: block;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .week-grid button span {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-soft);
+        }
+
+        .week-grid button:hover,
+        .week-grid button:focus {
+            outline: none;
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(255, 101, 132, 0.22);
+        }
+
+        .week-grid button[data-active="true"] {
+            background: var(--accent);
+            color: white;
+            border-color: transparent;
+        }
+
+        footer {
+            margin-top: 48px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-soft);
+        }
+
+        @media (max-width: 640px) {
+            main {
+                padding: 32px 16px 48px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .trimester-badges {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <header>
+        <h1>Pregnancy Fruit Journey</h1>
+        <p class="lead">Explore each week of pregnancy with a fruit-inspired comparison so you can picture how your baby grows from a tiny seed to a nearly full-size watermelon.</p>
+    </header>
+
+    <section class="dashboard">
+        <article class="card">
+            <div class="trimester-badges" role="tablist" aria-label="Trimester shortcuts">
+                <button type="button" data-trimester="1">Trimester 1 - Weeks 4-13</button>
+                <button type="button" data-trimester="2">Trimester 2 - Weeks 14-27</button>
+                <button type="button" data-trimester="3">Trimester 3 - Weeks 28-40</button>
+            </div>
+
+            <div class="week-range">
+                <label for="week-range">Week <span id="week-number">4</span></label>
+                <input type="range" id="week-range" min="4" max="40" value="4" step="1">
+            </div>
+
+            <div class="fruit-highlight" aria-live="polite">
+                <div>
+                    <span class="badge" id="trimester-label">First trimester</span>
+                    <h2 id="fruit-title">Week 4 - Poppy Seed</h2>
+                    <div class="size-callout" id="fruit-size">Approx. 0.04 in / 0.1 cm</div>
+                </div>
+                <div class="fruit-info">
+                    <h3 id="fruit-name">Poppy Seed</h3>
+                    <p id="fruit-summary">Right after implantation, your embryo is smaller than a poppy seed while layers of cells begin forming the placenta and baby.</p>
+                </div>
+            </div>
+
+            <div class="progress-track">
+                <div class="progress-bar" aria-hidden="true">
+                    <span id="progress-fill" style="width:10%"></span>
+                </div>
+                <div class="progress-labels">
+                    <span>Start</span>
+                    <span id="progress-trimester">First trimester</span>
+                    <span>Delivery</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <h2>Jump to a Week</h2>
+            <div class="week-grid" id="week-grid" aria-label="Week quick selection"></div>
+        </article>
+    </section>
+
+    <footer>
+        Fruit sizes use common pregnancy comparisons and are approximate. Every pregnancy is unique-use this tool for fun visualization rather than medical guidance.
+    </footer>
+</main>
+
+<script>
+    const weekData = [
+        { week: 4, fruit: "Poppy Seed", size: "Approx. 0.04 in / 0.1 cm", summary: "Right after implantation, your embryo is smaller than a poppy seed while layers of cells begin forming the placenta and baby." },
+        { week: 5, fruit: "Sesame Seed", size: "Approx. 0.08 in / 0.2 cm", summary: "The neural tube is developing quickly and the heart is beginning to beat." },
+        { week: 6, fruit: "Apple Seed", size: "Approx. 0.13 in / 0.33 cm", summary: "Tiny buds that will become arms and legs are sprouting, and facial features are starting to take shape." },
+        { week: 7, fruit: "Blueberry", size: "Approx. 0.5 in / 1.3 cm", summary: "Hands and feet are forming webbed paddles while the brain grows at a rapid pace." },
+        { week: 8, fruit: "Raspberry", size: "Approx. 0.63 in / 1.6 cm", summary: "Eyelids, lips, and a little nose are developing; your baby can now make spontaneous movements." },
+        { week: 9, fruit: "Cherry", size: "Approx. 0.9 in / 2.3 cm", summary: "The tail is disappearing and the head is more rounded as vital organs continue maturing." },
+        { week: 10, fruit: "Kumquat", size: "Approx. 1.2 in / 3.1 cm", summary: "Organs are in place and fingernails start forming - your baby graduates from embryo to fetus." },
+        { week: 11, fruit: "Fig", size: "Approx. 1.6 in / 4.1 cm", summary: "Bones are hardening, and your baby can now stretch, somersault, and hiccup." },
+        { week: 12, fruit: "Lime", size: "Approx. 2.1 in / 5.4 cm", summary: "The digestive system is practicing contractions while reflexes sharpen." },
+        { week: 13, fruit: "Peach", size: "Approx. 2.9 in / 7.4 cm", summary: "Fingerprints deepen, vocal cords form, and the second trimester is just around the corner." },
+        { week: 14, fruit: "Lemon", size: "Approx. 3.4 in / 8.7 cm", summary: "Downy lanugo hair begins covering the body to help regulate temperature." },
+        { week: 15, fruit: "Orange", size: "Approx. 4.0 in / 10.1 cm", summary: "Taste buds are forming and your baby can sense light through closed eyelids." },
+        { week: 16, fruit: "Avocado", size: "Approx. 4.6 in / 11.6 cm", summary: "The skeletal system is strengthening and facial muscles allow for first expressions." },
+        { week: 17, fruit: "Pear", size: "Approx. 5.1 in / 13 cm", summary: "Fat is starting to build under the skin while the heart pumps about 100 pints of blood a day." },
+        { week: 18, fruit: "Bell Pepper", size: "Approx. 5.6 in / 14.2 cm", summary: "Ears are now in place and connected, so your baby can hear the outside world." },
+        { week: 19, fruit: "Mango", size: "Approx. 6.0 in / 15.3 cm", summary: "A waxy protective coating called vernix appears over the skin." },
+        { week: 20, fruit: "Banana", size: "Approx. 6.5 in / 16.5 cm", summary: "Halfway there - the brain is designating areas for each sense." },
+        { week: 21, fruit: "Pomegranate", size: "Approx. 10.5 in / 26.7 cm", summary: "Your baby now measures head to toe, practicing swallowing and breathing motions." },
+        { week: 22, fruit: "Papaya", size: "Approx. 11.0 in / 28 cm", summary: "Lips and eyelids are more distinct, and sleep cycles are emerging." },
+        { week: 23, fruit: "Grapefruit", size: "Approx. 11.5 in / 29.2 cm", summary: "You may feel karate kicks as muscles strengthen and lungs develop air sacs." },
+        { week: 24, fruit: "Cantaloupe", size: "Approx. 12.0 in / 30.5 cm", summary: "Taste buds are ready for flavor and the inner ear helps with balance." },
+        { week: 25, fruit: "Honeydew Melon", size: "Approx. 13.0 in / 33 cm", summary: "Baby can respond to your voice and may startle at loud sounds." },
+        { week: 26, fruit: "Canary Melon", size: "Approx. 13.6 in / 34.5 cm", summary: "The lungs are making surfactant, a key ingredient for breathing after birth." },
+        { week: 27, fruit: "Galia Melon", size: "Approx. 14.2 in / 36 cm", summary: "The brain's tissue and neurons keep expanding, boosting activity." },
+        { week: 28, fruit: "Jackfruit", size: "Approx. 14.8 in / 37.6 cm", summary: "Welcome to the third trimester - eyes can open and close, reacting to light." },
+        { week: 29, fruit: "Durian", size: "Approx. 15.2 in / 38.6 cm", summary: "Tiny lungs continue to mature while your baby stores calcium for strong bones." },
+        { week: 30, fruit: "Breadfruit", size: "Approx. 15.7 in / 39.9 cm", summary: "The brain develops grooves and folds, increasing surface area for learning." },
+        { week: 31, fruit: "Pineapple", size: "Approx. 16.2 in / 41.1 cm", summary: "Five senses are fully in place, and the body is plumping up quickly now." },
+        { week: 32, fruit: "Casaba Melon", size: "Approx. 16.7 in / 42.4 cm", summary: "Finger and toenails are complete, and skin is transitioning from translucent to opaque." },
+        { week: 33, fruit: "Santa Claus Melon", size: "Approx. 17.2 in / 43.7 cm", summary: "Immune system prep begins as antibodies pass from you to baby." },
+        { week: 34, fruit: "Crenshaw Melon", size: "Approx. 17.7 in / 45.0 cm", summary: "The nervous system keeps fine-tuning, supporting breathing and temperature control." },
+        { week: 35, fruit: "Canary Watermelon", size: "Approx. 18.2 in / 46.2 cm", summary: "Space is limited, so rolls and wiggles may feel more like gentle stretches." },
+        { week: 36, fruit: "Sugar Baby Watermelon", size: "Approx. 18.7 in / 47.5 cm", summary: "Baby is practicing sucking and gripping while packing on ounces each day." },
+        { week: 37, fruit: "Golden Watermelon", size: "Approx. 19.1 in / 48.5 cm", summary: "Considered early term-babies at this stage keep building brain and lung power." },
+        { week: 38, fruit: "Pumpkin", size: "Approx. 19.4 in / 49.3 cm", summary: "Most lanugo is gone and a firm grasp reflex has developed." },
+        { week: 39, fruit: "Large Watermelon", size: "Approx. 19.8 in / 50.3 cm", summary: "The digestive system is ready for milk, and skin is smoothing out with extra fat." },
+        { week: 40, fruit: "Small Watermelon", size: "Approx. 20.2 in / 51.2 cm", summary: "Right on time - your baby is full term and ready to meet the world." }
+    ];
+
+    const trimesterRanges = {
+        1: { start: 4, end: 13, label: "First trimester" },
+        2: { start: 14, end: 27, label: "Second trimester" },
+        3: { start: 28, end: 40, label: "Third trimester" }
+    };
+
+    const weekRange = document.querySelector("#week-range");
+    const weekNumber = document.querySelector("#week-number");
+    const fruitTitle = document.querySelector("#fruit-title");
+    const fruitName = document.querySelector("#fruit-name");
+    const fruitSummary = document.querySelector("#fruit-summary");
+    const fruitSize = document.querySelector("#fruit-size");
+    const trimesterLabel = document.querySelector("#trimester-label");
+    const progressFill = document.querySelector("#progress-fill");
+    const progressTrimester = document.querySelector("#progress-trimester");
+    const trimesterButtons = document.querySelectorAll("[data-trimester]");
+    const weekGrid = document.querySelector("#week-grid");
+
+    function getTrimester(week) {
+        if (week >= trimesterRanges[3].start) return trimesterRanges[3];
+        if (week >= trimesterRanges[2].start) return trimesterRanges[2];
+        return trimesterRanges[1];
+    }
+
+    function renderWeekGrid() {
+        weekGrid.innerHTML = "";
+        weekData.forEach((item) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.week = item.week;
+            button.innerHTML = `<strong>Week ${item.week}</strong><span>${item.fruit}</span>`;
+            button.addEventListener("click", () => setWeek(item.week));
+            weekGrid.appendChild(button);
+        });
+    }
+
+    function highlightActiveWeek(week) {
+        weekGrid.querySelectorAll("button").forEach((btn) => {
+            btn.dataset.active = String(Number(btn.dataset.week) === week);
+        });
+    }
+
+    function highlightActiveTrimester(trimester) {
+        trimesterButtons.forEach((btn) => {
+            btn.dataset.active = String(btn.dataset.trimester === String(trimester));
+        });
+    }
+
+    function setWeek(week) {
+        const data = weekData.find((item) => item.week === week);
+        if (!data) return;
+
+        weekRange.value = week;
+        weekNumber.textContent = week;
+        fruitTitle.textContent = `Week ${week} - ${data.fruit}`;
+        fruitName.textContent = data.fruit;
+        fruitSummary.textContent = data.summary;
+        fruitSize.textContent = data.size;
+
+        const trimester = getTrimester(week);
+        trimesterLabel.textContent = trimester.label;
+        progressTrimester.textContent = trimester.label;
+        highlightActiveTrimester(Object.keys(trimesterRanges).find((key) => trimesterRanges[key] === trimester));
+
+        const completion = ((week - 4) / (40 - 4)) * 100;
+        progressFill.style.width = `${Math.max(4, completion)}%`;
+
+        highlightActiveWeek(week);
+    }
+
+    weekRange.addEventListener("input", (event) => {
+        setWeek(Number(event.target.value));
+    });
+
+    trimesterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const { start } = trimesterRanges[Number(button.dataset.trimester)];
+            setWeek(start);
+        });
+    });
+
+    renderWeekGrid();
+    setWeek(4);
+</script>
+</body>
+</html>
