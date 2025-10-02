@@ -652,6 +652,25 @@
         }
     }
 
+    function setCookie(name, value, days = 365) {
+        const expires = new Date(Date.now() + days * 86400000).toUTCString();
+        document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Lax';
+    }
+
+    function getCookie(name) {
+        if (!document.cookie) {
+            return null;
+        }
+        const parts = document.cookie.split('; ');
+        for (const part of parts) {
+            const [key, rawValue] = part.split('=');
+            if (key === name) {
+                return decodeURIComponent(rawValue || '');
+            }
+        }
+        return null;
+    }
+
     function getTrimesterKey(week) {
         if (week >= trimesterRanges[3].start) return '3';
         if (week >= trimesterRanges[2].start) return '2';
@@ -785,6 +804,12 @@
                 source: source
             });
         }
+
+        try {
+            localStorage.setItem('fbWeek', String(week));
+        } catch (error) {
+        }
+        setCookie('fbWeek', String(week));
     }
 
     function setLanguage(lang) {
@@ -829,6 +854,7 @@
             lastTrackedLang = lang;
             sendAnalyticsEvent('language_change', { language: lang });
         }
+        setCookie('fbLang', lang);
         try {
             localStorage.setItem('fbLang', lang);
         } catch (error) {
@@ -847,6 +873,7 @@
             lastTrackedTheme = theme;
             sendAnalyticsEvent('theme_change', { theme: theme });
         }
+        setCookie('fbTheme', theme);
         try {
             localStorage.setItem('fbTheme', theme);
         } catch (error) {
@@ -877,6 +904,10 @@
     });
 
     const preferredLang = (() => {
+        const cookieLang = getCookie('fbLang');
+        if (cookieLang && translations[cookieLang]) {
+            return cookieLang;
+        }
         try {
             const stored = localStorage.getItem('fbLang');
             if (stored && translations[stored]) return stored;
@@ -887,6 +918,10 @@
     })();
 
     const preferredTheme = (() => {
+        const cookieTheme = getCookie('fbTheme');
+        if (cookieTheme === 'light' || cookieTheme === 'dark') {
+            return cookieTheme;
+        }
         try {
             const stored = localStorage.getItem('fbTheme');
             if (stored === 'light' || stored === 'dark') return stored;
@@ -894,6 +929,22 @@
         }
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     })();
+    const preferredWeek = (() => {
+        const cookieWeek = Number(getCookie('fbWeek'));
+        if (!Number.isNaN(cookieWeek) && cookieWeek >= 4 && cookieWeek <= 40) {
+            return cookieWeek;
+        }
+        try {
+            const stored = Number(localStorage.getItem('fbWeek'));
+            if (!Number.isNaN(stored) && stored >= 4 && stored <= 40) {
+                return stored;
+            }
+        } catch (error) {
+        }
+        return currentWeek;
+    })();
+
+    currentWeek = preferredWeek;
 
     setTheme(preferredTheme);
     setLanguage(preferredLang);
@@ -909,4 +960,5 @@
 </script>
 </body>
 </html>
+
 
