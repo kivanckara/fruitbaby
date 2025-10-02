@@ -3,7 +3,42 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Pregnancy week-by-week fruit comparison with bilingual support, dark mode, and interactive insights.">
+    <meta name="keywords" content="pregnancy, fruit size, baby growth, week by week, bilingual tracker">
+    <meta name="author" content="FruitBaby">
+    <link rel="canonical" href="https://example.com/fruitbaby">
+    <link rel="alternate" hreflang="en" href="https://example.com/fruitbaby">
+    <link rel="alternate" hreflang="tr" href="https://example.com/fruitbaby?lang=tr">
+    <meta property="og:title" content="Pregnancy Fruit Journey">
+    <meta property="og:description" content="Visualize baby growth with fruit sizes, track each week, and switch between English and Turkish.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/fruitbaby">
+    <meta property="og:image" content="https://example.com/assets/fruitbaby-preview.jpg">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="tr_TR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pregnancy Fruit Journey">
+    <meta name="twitter:description" content="Visualize baby growth with fruit sizes and bilingual insights.">
     <title>Pregnancy Fruit Journey</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX';
+        gtag('js', new Date());
+        gtag('config', GA_MEASUREMENT_ID, { anonymize_ip: true });
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Pregnancy Fruit Journey",
+        "description": "Pregnancy week-by-week fruit comparison with bilingual support, dark mode, and interactive insights.",
+        "url": "https://example.com/fruitbaby",
+        "inLanguage": ["en", "tr"],
+        "isAccessibleForFree": true
+    }
+    </script>
     <style>
         :root {
             color-scheme: light;
@@ -58,6 +93,25 @@
             padding: 48px 24px 64px;
         }
 
+        .ad-slot {
+            border: 1px dashed var(--border);
+            background: rgba(255, 255, 255, 0.55);
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+            color: var(--text-soft);
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        .ad-slot p {
+            margin: 0;
+        }
+
+        :root[data-theme="dark"] .ad-slot {
+            background: rgba(36, 28, 54, 0.9);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
         .toolbar {
             display: flex;
             flex-wrap: wrap;
@@ -379,11 +433,18 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
+
+            .ad-slot {
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
 <main>
+    <aside class="ad-slot" id="ad-slot-top" aria-label="Advertising space">
+        <p>Ad placeholder - replace with provider embed code.</p>
+    </aside>
     <div class="toolbar">
         <div class="control">
             <span id="language-label">Language</span>
@@ -445,6 +506,10 @@
             <div class="week-grid" id="week-grid" aria-label="Week quick selection"></div>
         </article>
     </section>
+
+    <aside class="ad-slot" id="ad-slot-bottom" aria-label="Advertising space">
+        <p>Ad placeholder - replace with provider embed code.</p>
+    </aside>
 
     <footer id="footer-note">
         Fruit sizes use common pregnancy comparisons and are approximate. Every pregnancy is unique-use this tool for fun visualization rather than medical guidance.
@@ -576,6 +641,16 @@
     let currentLang = 'en';
     let currentTheme = 'light';
     let currentWeek = Number(weekRange.value);
+    let isBootstrapping = true;
+    let lastTrackedWeek = null;
+    let lastTrackedLang = null;
+    let lastTrackedTheme = null;
+
+    function sendAnalyticsEvent(name, params = {}) {
+        if (typeof gtag === 'function') {
+            gtag('event', name, params);
+        }
+    }
 
     function getTrimesterKey(week) {
         if (week >= trimesterRanges[3].start) return '3';
@@ -591,7 +666,7 @@
             button.type = 'button';
             button.dataset.week = String(item.week);
             button.innerHTML = '<strong>' + strings.weekPrefix + ' ' + item.week + '</strong><span>' + item.fruit[currentLang] + '</span>';
-            button.addEventListener('click', () => setWeek(item.week));
+            button.addEventListener('click', () => setWeek(item.week, 'grid_button'));
             weekGrid.appendChild(button);
         });
     }
@@ -614,6 +689,54 @@
         });
     }
 
+    function observeAdSlots() {
+        const slots = document.querySelectorAll('.ad-slot');
+        if (!slots.length) {
+            return;
+        }
+        if (!('IntersectionObserver' in window)) {
+            slots.forEach((slot) => {
+                sendAnalyticsEvent('ad_slot_view', {
+                    slot_id: slot.id || 'unknown',
+                    language: currentLang,
+                    theme: currentTheme
+                });
+            });
+            return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    sendAnalyticsEvent('ad_slot_view', {
+                        slot_id: entry.target.id || 'unknown',
+                        language: currentLang,
+                        theme: currentTheme
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        slots.forEach((slot) => observer.observe(slot));
+    }
+
+    function watchScrollDepth() {
+        const milestones = [25, 50, 75, 90];
+        const reached = new Set();
+        window.addEventListener('scroll', () => {
+            const doc = document.documentElement;
+            const body = document.body;
+            const scrollTop = doc.scrollTop || body.scrollTop;
+            const scrollable = (doc.scrollHeight || body.scrollHeight) - doc.clientHeight;
+            const percent = scrollable > 0 ? Math.round((scrollTop / scrollable) * 100) : 100;
+            milestones.forEach((mark) => {
+                if (!reached.has(mark) && percent >= mark) {
+                    reached.add(mark);
+                    sendAnalyticsEvent('scroll_depth', { percent: mark });
+                }
+            });
+        }, { passive: true });
+    }
+
     function updateThemeToggleText() {
         const strings = translations[currentLang];
         if (currentTheme === 'light') {
@@ -626,7 +749,7 @@
         themeToggle.setAttribute('aria-pressed', currentTheme === 'dark');
     }
 
-    function setWeek(week) {
+    function setWeek(week, source = 'unknown') {
         const data = weekData.find((item) => item.week === week);
         if (!data) return;
         const strings = translations[currentLang];
@@ -649,6 +772,19 @@
         progressFill.style.width = Math.max(3, completion) + '%';
 
         highlightActiveWeek(week);
+
+        if (isBootstrapping) {
+            lastTrackedWeek = week;
+        } else if (lastTrackedWeek !== week) {
+            lastTrackedWeek = week;
+            sendAnalyticsEvent('week_change', {
+                week: week,
+                fruit: data.fruit[currentLang],
+                language: currentLang,
+                theme: currentTheme,
+                source: source
+            });
+        }
     }
 
     function setLanguage(lang) {
@@ -683,9 +819,16 @@
         });
 
         renderWeekGrid();
-        setWeek(currentWeek);
+        setWeek(currentWeek, 'language_refresh');
         highlightActiveLanguage();
         updateThemeToggleText();
+
+        if (isBootstrapping) {
+            lastTrackedLang = lang;
+        } else if (lastTrackedLang !== lang) {
+            lastTrackedLang = lang;
+            sendAnalyticsEvent('language_change', { language: lang });
+        }
         try {
             localStorage.setItem('fbLang', lang);
         } catch (error) {
@@ -697,6 +840,13 @@
         currentTheme = theme;
         document.documentElement.dataset.theme = theme;
         updateThemeToggleText();
+
+        if (isBootstrapping) {
+            lastTrackedTheme = theme;
+        } else if (lastTrackedTheme !== theme) {
+            lastTrackedTheme = theme;
+            sendAnalyticsEvent('theme_change', { theme: theme });
+        }
         try {
             localStorage.setItem('fbTheme', theme);
         } catch (error) {
@@ -704,14 +854,14 @@
     }
 
     weekRange.addEventListener('input', (event) => {
-        setWeek(Number(event.target.value));
+        setWeek(Number(event.target.value), 'slider');
     });
 
     trimesterButtons.forEach((button) => {
         button.addEventListener('click', () => {
             const range = trimesterRanges[Number(button.dataset.trimester)];
             if (range) {
-                setWeek(range.start);
+                setWeek(range.start, 'trimester_button');
             }
         });
     });
@@ -747,7 +897,16 @@
 
     setTheme(preferredTheme);
     setLanguage(preferredLang);
-    setWeek(currentWeek);
+    setWeek(currentWeek, 'init');
+    observeAdSlots();
+    watchScrollDepth();
+    isBootstrapping = false;
+    sendAnalyticsEvent('tracker_ready', {
+        language: currentLang,
+        theme: currentTheme,
+        week: currentWeek
+    });
 </script>
 </body>
 </html>
+
